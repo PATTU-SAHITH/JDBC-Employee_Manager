@@ -14,6 +14,8 @@ public class Main {
             System.out.println("Database connected!");
         } catch (SQLException e) {
             e.printStackTrace();
+            sc.close();
+            return;
         }
 
         EmployeeRepository repository = new EmployeeRepository();
