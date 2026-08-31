@@ -1,0 +1,11 @@
+package model;
+
+public enum Role {
+    SOFTWARE_ENGINEER,
+    BACKEND_DEVELOPER,
+    FRONTEND_DEVELOPER,
+
+    SALES_EXECUTIVE,
+    SALES_MANAGER,
+    ACCOUNT_MANAGER
+}
