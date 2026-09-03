@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class EmployeeRepository {
-    private List<Employee> employees = new ArrayList<>();
 
     public void addEmployee(Employee emp) {
         String sql = """
@@ -60,13 +59,43 @@ public class EmployeeRepository {
     }
 
     public void deleteById(int id) {
-        employees.removeIf(employee -> employee.getId() == id);
+        String sql = "DELETE FROM employees WHERE id=?";
+
+        try (
+                Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete Employee", e);
+        }
     }
 
     public Optional<Employee> findById(int id) {
-        return employees.stream()
-                .filter(emp -> emp.getId() == id)
-                .findFirst();
+        String sql = "SELECT * FROM employees WHERE id = ?";
+
+        try (
+                Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    Department department = Department.valueOf(resultSet.getString("department"));
+                    Role role = Role.valueOf(resultSet.getString("role"));
+                    Employee employee = new Employee(
+                            resultSet.getInt("id"),
+                            resultSet.getString("name"),
+                            department,
+                            role,
+                            resultSet.getInt("salary"));
+                    return Optional.of(employee);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find Employee", e);
+        }
+
+        return Optional.empty();
     }
 
 }
